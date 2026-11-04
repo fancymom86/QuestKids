@@ -1,0 +1,237 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidStringList(arr, maxLen) {
+      return arr is list && arr.size() <= maxLen &&
+             (arr.size() == 0 || (arr[0] is string && arr[0].size() <= 64));
+    }
+
+    function isValidKidProfile(data) {
+      return data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.kidName is string && data.kidName.size() >= 1 && data.kidName.size() <= 50 &&
+             data.avatarId is string && data.avatarId.size() >= 1 && data.avatarId.size() <= 30 &&
+             data.totalStars is int && data.totalStars >= 0 && data.totalStars <= 1000000 &&
+             data.level is int && data.level >= 1 && data.level <= 1000 &&
+             data.currentStreak is int && data.currentStreak >= 0 && data.currentStreak <= 10000 &&
+             data.longestStreak is int && data.longestStreak >= 0 && data.longestStreak <= 10000 &&
+             data.lastCompletedDate is string && data.lastCompletedDate.size() <= 20 &&
+             isValidStringList(data.completedDates, 90) &&
+             isValidStringList(data.morningPerfectDates, 90) &&
+             isValidStringList(data.weekendPerfectDates, 90) &&
+             isValidStringList(data.unlockedBadges, 50) &&
+             isValidStringList(data.claimedRewards, 50) &&
+             (!('petType' in data) || (data.petType is string && data.petType.size() >= 1 && data.petType.size() <= 30)) &&
+             (!('petName' in data) || (data.petName is string && data.petName.size() >= 1 && data.petName.size() <= 40)) &&
+             (!('petLevel' in data) || (data.petLevel is int && data.petLevel >= 1 && data.petLevel <= 1000)) &&
+             (!('petXp' in data) || (data.petXp is int && data.petXp >= 0 && data.petXp <= 1000000)) &&
+             (!('petHappiness' in data) || (data.petHappiness is int && data.petHappiness >= 0 && data.petHappiness <= 100)) &&
+             (!('petTreats' in data) || (data.petTreats is int && data.petTreats >= 0 && data.petTreats <= 100000)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidQuestTask(data) {
+      return data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 80 &&
+             data.routine is string && data.routine.size() <= 20 &&
+             data.routine in ['MORNING', 'AFTERNOON', 'EVENING', 'WEEKEND'] &&
+             data.iconName is string && data.iconName.size() >= 1 && data.iconName.size() <= 30 &&
+             data.starReward is int && data.starReward >= 1 && data.starReward <= 50 &&
+             data.completedToday is bool &&
+             data.lastCompletedDate is string && data.lastCompletedDate.size() <= 20 &&
+             data.completionCount is int && data.completionCount >= 0 && data.completionCount <= 100000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidVisualReward(data) {
+      return data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 80 &&
+             data.iconName is string && data.iconName.size() >= 1 && data.iconName.size() <= 30 &&
+             data.starCost is int && data.starCost >= 5 && data.starCost <= 500 &&
+             data.timesClaimed is int && data.timesClaimed >= 0 && data.timesClaimed <= 100000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidGiftRedemptionRequest(data) {
+      return data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.rewardId is string && data.rewardId.size() >= 1 && data.rewardId.size() <= 128 &&
+             data.rewardTitle is string && data.rewardTitle.size() >= 1 && data.rewardTitle.size() <= 80 &&
+             data.iconName is string && data.iconName.size() >= 1 && data.iconName.size() <= 30 &&
+             data.starCost is int && data.starCost >= 5 && data.starCost <= 500 &&
+             data.kidName is string && data.kidName.size() >= 1 && data.kidName.size() <= 50 &&
+             data.status is string && data.status.size() <= 20 &&
+             data.status in ['PENDING', 'APPROVED', 'REJECTED'] &&
+             data.parentNote is string && data.parentNote.size() <= 160 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().keys().hasAll([
+                         'userId', 'kidName', 'avatarId', 'totalStars', 'level',
+                         'currentStreak', 'longestStreak', 'lastCompletedDate',
+                         'completedDates', 'morningPerfectDates', 'weekendPerfectDates',
+                         'unlockedBadges', 'claimedRewards', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'kidName', 'avatarId', 'totalStars', 'level',
+                         'currentStreak', 'longestStreak', 'lastCompletedDate',
+                         'completedDates', 'morningPerfectDates', 'weekendPerfectDates',
+                         'unlockedBadges', 'claimedRewards',
+                         'petType', 'petName', 'petLevel', 'petXp', 'petHappiness', 'petTreats',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidKidProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidKidProfile(incoming()) &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'kidName', 'avatarId', 'totalStars', 'level',
+                         'currentStreak', 'longestStreak', 'lastCompletedDate',
+                         'completedDates', 'morningPerfectDates', 'weekendPerfectDates',
+                         'unlockedBadges', 'claimedRewards',
+                         'petType', 'petName', 'petLevel', 'petXp', 'petHappiness', 'petTreats',
+                         'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+      match /tasks/{taskId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(taskId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(taskId) &&
+                         request.auth.uid == userId &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'routine', 'iconName', 'starReward',
+                           'completedToday', 'lastCompletedDate', 'completionCount',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'routine', 'iconName', 'starReward',
+                           'completedToday', 'lastCompletedDate', 'completionCount',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidQuestTask(incoming());
+
+        allow update: if isSignedIn() &&
+                         isValidQuestTask(incoming()) &&
+                         isValidId(userId) &&
+                         isValidId(taskId) &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'routine', 'iconName', 'starReward',
+                           'completedToday', 'lastCompletedDate', 'completionCount', 'updatedAt'
+                         ]);
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(taskId) && request.auth.uid == userId;
+      }
+
+      match /rewards/{rewardId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(rewardId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(rewardId) &&
+                         request.auth.uid == userId &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'iconName', 'starCost',
+                           'timesClaimed', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'iconName', 'starCost',
+                           'timesClaimed', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidVisualReward(incoming());
+
+        allow update: if isSignedIn() &&
+                         isValidVisualReward(incoming()) &&
+                         isValidId(userId) &&
+                         isValidId(rewardId) &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'iconName', 'starCost', 'timesClaimed', 'updatedAt'
+                         ]);
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(rewardId) && request.auth.uid == userId;
+      }
+
+      match /redemptions/{redemptionId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(redemptionId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(redemptionId) &&
+                         request.auth.uid == userId &&
+                         incoming().keys().hasAll([
+                           'userId', 'rewardId', 'rewardTitle', 'iconName',
+                           'starCost', 'kidName', 'status', 'parentNote',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'rewardId', 'rewardTitle', 'iconName',
+                           'starCost', 'kidName', 'status', 'parentNote',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidGiftRedemptionRequest(incoming());
+
+        allow update: if isSignedIn() &&
+                         isValidGiftRedemptionRequest(incoming()) &&
+                         isValidId(userId) &&
+                         isValidId(redemptionId) &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().rewardId == existing().rewardId &&
+                         incoming().starCost == existing().starCost &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'status', 'parentNote', 'updatedAt'
+                         ]);
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(redemptionId) && request.auth.uid == userId;
+      }
+    }
+  }
+}

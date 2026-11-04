@@ -1,0 +1,6 @@
+{
+  "name": "QuestKids",
+  "description": "A gamified daily checklist for kids with star rewards, streak tracking, and achievement badges.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

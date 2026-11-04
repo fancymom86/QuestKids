@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer Golden Star Shield within 66dp safe zone (21..87) -->
+    <path
+        android:fillColor="#FFD13B"
+        android:pathData="M54,23 L62.5,40.2 L81.5,43.0 L67.7,56.4 L71.0,75.3 L54,66.4 L37.0,75.3 L40.3,56.4 L26.5,43.0 L45.5,40.2 Z" />
+    <!-- Inner Warm Highlight Star -->
+    <path
+        android:fillColor="#FFF1A8"
+        android:pathData="M54,29 L60.2,41.6 L74.0,43.6 L64.0,53.4 L66.4,67.2 L54,60.7 L41.6,67.2 L44.0,53.4 L34.0,43.6 L47.8,41.6 Z" />
+    <!-- Turquoise Quest Checkmark Badge at bottom right -->
+    <path
+        android:fillColor="#00C4B4"
+        android:pathData="M68,68 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M65.5,73.5 L59.5,67.5 L62.0,65.0 L65.5,68.5 L74.0,60.0 L76.5,62.5 Z" />
+</vector>

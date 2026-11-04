@@ -1,0 +1,310 @@
+{
+  "entities": {
+    "KidProfile": {
+      "title": "KidProfile",
+      "description": "Stores a child's gamified profile, star balance, 205-level virtual pet companion stats, streak stats, perfect routine dates, and unlocked achievement badges.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated owner UID."
+        },
+        "kidName": {
+          "type": "string",
+          "description": "Display name of the child adventurer."
+        },
+        "avatarId": {
+          "type": "string",
+          "description": "Selected mascot avatar identifier."
+        },
+        "totalStars": {
+          "type": "integer",
+          "description": "Current spendable star balance."
+        },
+        "level": {
+          "type": "integer",
+          "description": "Current adventurer level."
+        },
+        "currentStreak": {
+          "type": "integer",
+          "description": "Current consecutive days of task completion."
+        },
+        "longestStreak": {
+          "type": "integer",
+          "description": "Highest consecutive days of task completion achieved."
+        },
+        "lastCompletedDate": {
+          "type": "string",
+          "description": "ISO date string (YYYY-MM-DD) when a task was last completed."
+        },
+        "completedDates": {
+          "type": "array",
+          "description": "Bounded list of ISO date strings (YYYY-MM-DD) with completed tasks."
+        },
+        "morningPerfectDates": {
+          "type": "array",
+          "description": "Bounded list of ISO date strings where all morning routine tasks were completed."
+        },
+        "weekendPerfectDates": {
+          "type": "array",
+          "description": "Bounded list of ISO date strings where all weekend tasks were completed on a weekend."
+        },
+        "unlockedBadges": {
+          "type": "array",
+          "description": "Bounded list of unlocked achievement badge IDs."
+        },
+        "claimedRewards": {
+          "type": "array",
+          "description": "Bounded list of approved reward IDs."
+        },
+        "petType": {
+          "type": "string",
+          "description": "Species ID of the child's virtual pet companion across Sea, Land, Air, Enchantment, and Space."
+        },
+        "petName": {
+          "type": "string",
+          "description": "Custom name of the child's virtual pet."
+        },
+        "petLevel": {
+          "type": "integer",
+          "description": "Current evolution/growth level of the virtual pet (1 to 205)."
+        },
+        "petXp": {
+          "type": "integer",
+          "description": "Experience points earned by feeding, playing mini-games, and raising the pet."
+        },
+        "petHappiness": {
+          "type": "integer",
+          "description": "Happiness meter of the virtual pet (0 to 100)."
+        },
+        "petTreats": {
+          "type": "integer",
+          "description": "Number of pet treats earned from completing daily tasks and mini-games."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was created via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was last updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "kidName",
+        "avatarId",
+        "totalStars",
+        "level",
+        "currentStreak",
+        "longestStreak",
+        "lastCompletedDate",
+        "completedDates",
+        "morningPerfectDates",
+        "weekendPerfectDates",
+        "unlockedBadges",
+        "claimedRewards",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "QuestTask": {
+      "title": "QuestTask",
+      "description": "A daily checklist task assigned to a routine with a star reward value.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated owner UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Name of the daily quest task."
+        },
+        "routine": {
+          "type": "string",
+          "enum": ["MORNING", "AFTERNOON", "EVENING", "WEEKEND"],
+          "description": "Routine category for the task."
+        },
+        "iconName": {
+          "type": "string",
+          "description": "Identifier for the visual task icon."
+        },
+        "starReward": {
+          "type": "integer",
+          "description": "Number of stars awarded on completion (1 to 50)."
+        },
+        "completedToday": {
+          "type": "boolean",
+          "description": "Whether the task is marked completed for the active date."
+        },
+        "lastCompletedDate": {
+          "type": "string",
+          "description": "ISO date string (YYYY-MM-DD) when the task was last completed."
+        },
+        "completionCount": {
+          "type": "integer",
+          "description": "Total number of times this task has been completed."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the task was created via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the task was last updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "routine",
+        "iconName",
+        "starReward",
+        "completedToday",
+        "lastCompletedDate",
+        "completionCount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "VisualReward": {
+      "title": "VisualReward",
+      "description": "A customizable visual reward gift that kids can request and redeem with parents using their earned stars.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated owner UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the reward gift."
+        },
+        "iconName": {
+          "type": "string",
+          "description": "Visual icon identifier for the reward."
+        },
+        "starCost": {
+          "type": "integer",
+          "description": "Cost in stars to redeem this reward (5 to 500)."
+        },
+        "timesClaimed": {
+          "type": "integer",
+          "description": "Number of times the child has had this reward approved."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the reward was created via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the reward was last updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "iconName",
+        "starCost",
+        "timesClaimed",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "GiftRedemptionRequest": {
+      "title": "GiftRedemptionRequest",
+      "description": "A child's request to redeem a virtual gift using their star balance, which parents can approve or reject in the Parental Dashboard.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated owner UID."
+        },
+        "rewardId": {
+          "type": "string",
+          "description": "ID of the VisualReward being redeemed."
+        },
+        "rewardTitle": {
+          "type": "string",
+          "description": "Title of the gift being redeemed."
+        },
+        "iconName": {
+          "type": "string",
+          "description": "Icon identifier for the gift."
+        },
+        "starCost": {
+          "type": "integer",
+          "description": "Star balance deducted/reserved for this redemption (5 to 500)."
+        },
+        "kidName": {
+          "type": "string",
+          "description": "Name of the child requesting the gift."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED"],
+          "description": "Current parental approval status."
+        },
+        "parentNote": {
+          "type": "string",
+          "description": "Optional note from the parent when approving or rejecting."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the request was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the request was last updated."
+        }
+      },
+      "required": [
+        "userId",
+        "rewardId",
+        "rewardTitle",
+        "iconName",
+        "starCost",
+        "kidName",
+        "status",
+        "parentNote",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/KidProfile"
+      },
+      "description": "Per-user kid adventurer profile, virtual pet stats, streak history, and badge progress."
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": {
+        "$ref": "#/entities/QuestTask"
+      },
+      "description": "Daily checklist tasks scoped to the authenticated user."
+    },
+    "/users/{userId}/rewards/{rewardId}": {
+      "schema": {
+        "$ref": "#/entities/VisualReward"
+      },
+      "description": "Redeemable parent gifts scoped to the authenticated user."
+    },
+    "/users/{userId}/redemptions/{redemptionId}": {
+      "schema": {
+        "$ref": "#/entities/GiftRedemptionRequest"
+      },
+      "description": "Child gift redemption requests that parents approve or reject in the Parental Dashboard."
+    }
+  }
+}
